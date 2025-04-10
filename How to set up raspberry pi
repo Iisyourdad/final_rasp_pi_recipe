@@ -1,26 +1,19 @@
-sudo apt update
-
-sudo apt full-upgrade
-
 sudo raspi-config
 #select boot/autologin desktop
 
-#make sure sh files are in the right directory
-
-sudo chmod +x /home/tyler/django_server_run.sh
-sudo chmod +x /home/tyler/run_kiosk.sh
+sudo apt update
+sudo apt full-upgrade
 
 cd Downloads
-
 git clone https://github.com/Iisyourdad/final_rasp_pi_recipe.git
-
-
+cd..
+mv ~/Downloads/final_rasp_pi_recipe/{django_server_run.sh,run_kiosk.sh} .
+sudo chmod +x /home/tyler/django_server_run.sh
+sudo chmod +x /home/tyler/run_kiosk.sh
 cd final_rasp_pi_recipe
 sudo apt update
 sudo apt install python3-venv
-
 python3 -m venv venv
-
 source venv/bin/activate
 
 pip install asgiref, Django, django-ckeditor, django-crispy-forms, django-js-asset, pillow, sqlparse, tzdata, gunicorn
@@ -95,7 +88,7 @@ sudo cp /boot/firmware/cmdline.txt /boot/cmdline.txt.backup
 sudo nano /boot/firmware/cmdline.txt
 
 """
-console=tty3 quiet splash loglevel=0 logo.nologo vt.global_cursor_default=0 root=PARTUUID=e3ecc4f3-02 rootfstype=ext4 fsck.repair=yes rootwait plymouth.ignore-serial-consoles cfg80211.ieee80211_regdom=US
+console=tty3 quiet loglevel=0 logo.nologo vt.global_cursor_default=0 root=PARTUUID=e3ecc4f3-02 rootfstype=ext4 fsck.repair=yes rootwait plymouth.ignore-serial-consoles cfg80211.ieee80211_regdom=US
 
 
 """
@@ -176,5 +169,8 @@ https://chromewebstore.google.com/detail/scrollanywhere/jehmdpemhgfgjblpkilmeoaf
 
 
 
-sudo nano /boot/cmdline.txt
-###Remove any occurrence of the word "splash" and add "logo.nologo"
+
+
+
+
+
