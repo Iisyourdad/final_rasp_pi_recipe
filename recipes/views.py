@@ -142,7 +142,7 @@ def shutdown(request):
 @csrf_exempt
 def update_recipes(request):
     if request.method == "POST":
-        repo_dir = os.path.expanduser("~/Downloads/raspberrypi_recipe")
+        repo_dir = os.path.expanduser("~/Downloads/final_rasp_pi_recipe")
         result = subprocess.run(["git", "pull"], cwd=repo_dir, capture_output=True, text=True)
         if result.returncode == 0:
             return JsonResponse({"status": "success", "output": result.stdout})
