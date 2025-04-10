@@ -1,0 +1,242 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Recipe</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'recipes/css/styles.css' %}">
+  <style>
+    /* Force html and body to fill the viewport */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: #f7f7f7;
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    /* Nav bar remains at the top */
+    nav {
+      background: #dec773;
+      padding: 17px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+    }
+    nav ul li {
+      margin-right: 20px;
+    }
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+    }
+    /* Main container styling */
+    .main-container {
+      background: #fff;
+      width: 90%;
+      max-width: 800px;
+      flex: 1; /* fills remaining space */
+      margin: 40px auto 0; /* top margin only, to keep nav at top */
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+    }
+    .main-container h1 {
+      text-align: center;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    .main-container p {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #555;
+    }
+    .main-container a.instructions-link {
+      display: inline-block;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      color: #4285F4;
+      text-decoration: underline;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: block;
+      color: #555;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .form-group textarea {
+      resize: vertical;
+      min-height: 150px;
+    }
+    /* Ingredients Section */
+    #ingredients-container {
+      margin-top: 1rem;
+    }
+    #ingredient-search {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    #ingredients-checkboxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+    }
+    .ingredient-checkbox {
+      background: #f1f1f1;
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ingredient-checkbox input {
+      display: none;
+    }
+    .ingredient-checkbox.selected {
+      background: #4285F4;
+      color: #fff;
+    }
+    button[type="submit"] {
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #4285F4, #34A853);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button[type="submit"]:hover {
+      background: linear-gradient(135deg, #34A853, #4285F4);
+    }
+  </style>
+</head>
+<body>
+  <!-- Nav bar from index.html with left-aligned links -->
+  <nav>
+    <ul>
+      <li><a href="{% url 'index' %}">Home</a></li>
+      <li><a href="{% url 'add_recipe' %}">Add Recipe</a></li>
+      <li><a href="{% url 'add_ingredient' %}">Add Ingredient</a></li>
+      {% if user.is_authenticated %}
+        <li><a href="{% url 'favorites' %}">My Favorites</a></li>
+      {% endif %}
+    </ul>
+  </nav>
+  <div class="main-container">
+    <h1>Add Recipe</h1>
+    {% if system_ip %}
+      <p>
+        Please use a keyboard and mouse to add recipes or go to Google on another computer and type in {{ system_ip }}
+      </p>
+    {% else %}
+      <p>Please use a keyboard and mouse to add recipes.</p>
+    {% endif %}
+    <!-- Added link for instructions -->
+    <p><a class="instructions-link" href="/instructions/">Instructions</a></p>
+    <form action="" method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.media }}
+      <div class="form-group">
+        {{ form.title.label_tag }}
+        {{ form.title }}
+      </div>
+      <div class="form-group">
+        {{ form.meal_type.label_tag }}
+        {{ form.meal_type }}
+      </div>
+      <div class="form-group">
+        {{ form.instructions.label_tag }}
+        {{ form.instructions }}
+      </div>
+      <div class="form-group" id="ingredients-container">
+        <label for="ingredient-search">Ingredients</label>
+        <input type="text" id="ingredient-search" placeholder="Search ingredients...">
+        <div id="ingredients-checkboxes">
+          {% for checkbox in form.ingredients %}
+            <label class="ingredient-checkbox">
+              {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit">Submit Recipe</button>
+    </form>
+  </div>
+  <script>
+    // Toggle "selected" class when an ingredient checkbox changes state
+    document.querySelectorAll('.ingredient-checkbox input[type="checkbox"]').forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        if (checkbox.checked) {
+          checkbox.parentElement.classList.add('selected');
+        } else {
+          checkbox.parentElement.classList.remove('selected');
+        }
+      });
+    });
+    // Filter ingredients by search term
+    document.getElementById("ingredient-search").addEventListener("keyup", function() {
+      var filter = this.value.toLowerCase();
+      document.querySelectorAll(".ingredient-checkbox").forEach(function(tile) {
+        var labelText = tile.textContent.toLowerCase();
+        tile.style.display = labelText.indexOf(filter) > -1 ? "flex" : "none";
+      });
+    });
+    // Sort ingredient tiles case-insensitively after page load
+    document.addEventListener("DOMContentLoaded", function() {
+      var container = document.getElementById("ingredients-checkboxes");
+      if (container) {
+        var tiles = Array.from(container.children);
+        tiles.sort(function(a, b) {
+          var textA = a.innerText.trim().toLowerCase();
+          var textB = b.innerText.trim().toLowerCase();
+          return textA < textB ? -1 : textA > textB ? 1 : 0;
+        });
+        container.innerHTML = "";
+        tiles.forEach(function(tile) {
+          container.appendChild(tile);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

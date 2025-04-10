@@ -1,0 +1,180 @@
+sudo apt update
+
+sudo apt full-upgrade
+
+sudo raspi-config
+#select boot/autologin desktop
+
+#make sure sh files are in the right directory
+
+sudo chmod +x /home/tyler/django_server_run.sh
+sudo chmod +x /home/tyler/run_kiosk.sh
+
+cd Downloads
+
+git clone https://github.com/Iisyourdad/raspberrypi_recipe.git
+
+
+cd raspberrypi_recipe
+sudo apt update
+sudo apt install python3-venv
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+pip install asgiref, Django, django-ckeditor, django-crispy-forms, django-js-asset, pillow, sqlparse, tzdata, gunicorn
+pip install asgiref
+pip install Django
+pip install django-ckeditor
+pip install django-crispy-forms
+pip install django-js-asset
+pip install pillow
+pip install sqlparse
+pip install tzdata
+
+deactivate
+
+cd ..
+cd..
+
+sudo d +x /home/tyler/django_server_run.sh
+sudo chmod +x /home/tyler/run_kiosk.sh
+
+sudo nano /etc/systemd/system/django.service
+"""
+
+[Unit]
+Description=Django Server
+After=network.target
+
+[Service]
+User=tyler
+ExecStart=/home/tyler/django_server_run.sh
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+"""
+mkdir -p /home/tyler/.config/systemd/user
+nano /home/tyler/.config/systemd/user/kiosk.service
+
+"""
+[Unit]
+Description=Kiosk Service
+After=graphical-session.target
+
+[Service]
+ExecStart=/bin/bash /home/tyler/run_kiosk.sh
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+
+"""
+systemctl --user daemon-reload
+systemctl --user enable kiosk.service
+systemctl --user start kiosk.service
+
+sudo loginctl enable-linger tyler
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable django.service
+sudo systemctl enable kiosk.service
+sudo systemctl start django.service
+sudo systemctl start kiosk.service
+
+sudo cp /boot/firmware/config.txt /boot/config.txt.backup
+sudo nano /boot/firmware/config.txt
+
+#Put in disable_splash=1
+
+sudo cp /boot/firmware/cmdline.txt /boot/cmdline.txt.backup
+sudo nano /boot/firmware/cmdline.txt
+
+"""
+console=tty3 quiet splash loglevel=0 logo.nologo vt.global_cursor_default=0 root=PARTUUID=e3ecc4f3-02 rootfstype=ext4 fsck.repair=yes rootwait plymouth.ignore-serial-consoles cfg80211.ieee80211_regdom=US
+
+
+"""
+
+sudo systemctl disable getty@tty1.service
+
+sudo nano /usr/local/bin/update_wifi.sh
+
+"""
+#!/bin/bash
+# This script appends a new network configuration to wpa_supplicant.conf and reloads WiFi.
+
+if [ -z "$1" ]; then
+  echo "Error: No configuration provided."
+  exit 1
+fi
+
+CONFIG="$1"
+# Append the new network configuration to wpa_supplicant.conf
+echo "$CONFIG" >> /etc/wpa_supplicant/wpa_supplicant.conf
+
+# Reconfigure WiFi on wlan0
+sudo /usr/sbin/wpa_cli -i wlan0 reconfigure
+
+echo "WiFi configuration updated."
+
+
+
+"""
+
+sudo chmod +x /usr/local/bin/update_wifi.sh
+
+sudo visudo
+"""
+tyler ALL=(root) NOPASSWD: /usr/local/bin/update_wifi.sh
+"""
+
+sudo update-initramfs -u
+
+sudo nano /etc/lightdm/lightdm.conf
+
+#Then add this line under [Seat:*]:
+"""
+xserver-command=X -s 0 -dpms -nocursor -br -background white
+"""
+
+
+sudo mkdir -p /usr/share/X11/xorg.conf.d
+sudo nano /usr/share/X11/xorg.conf.d/40-libinput-touchscreen.conf
+
+"""
+Section "InputClass"
+    Identifier "Disable tapping for touchscreen"
+    MatchIsTouchscreen "on"
+    Driver "libinput"
+    Option "Tapping" "off"
+EndSection
+
+"""
+
+
+xinput set-button-map "xwayland-touch:14" 0 2 3
+nano ~/disable_touch_tap.sh
+
+"""
+#!/bin/bash
+sleep 5  # Wait a few seconds for X to initialize
+xinput set-button-map "xwayland-touch:14" 0 2 3
+
+"""
+
+chmod +x ~/disable_touch_tap.sh
+
+
+Install chrome extension
+
+https://chromewebstore.google.com/detail/scrollanywhere/jehmdpemhgfgjblpkilmeoafmkhbckhi
+
+
+
+sudo nano /boot/cmdline.txt
+###Remove any occurrence of the word "splash" and add "logo.nologo"
