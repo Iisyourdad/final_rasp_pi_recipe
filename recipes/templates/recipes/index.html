@@ -631,8 +631,8 @@
       (function() {
         var overlayContent = document.getElementById("display-overlay-content");
         var container = document.getElementById("display-off-overlay");
-        var velocityX = (Math.random() * 0.25 + 0.5) * (Math.random() < 0.5 ? 1 : -1);
-        var velocityY = (Math.random() * 0.25 + 0.5) * (Math.random() < 0.5 ? 1 : -1);
+        var velocityX = (Math.random() * 0.5 + 0.5) * (Math.random() < 0.5 ? 1 : -1);
+        var velocityY = (Math.random() * 0.5 + 0.5) * (Math.random() < 0.5 ? 1 : -1);
         var posX = 0, posY = 0;
         function animateOverlayContent() {
           if (container.style.display === "block") {
