@@ -47,8 +47,8 @@
       background: #fff;
       width: 90%;
       max-width: 800px;
-      flex: 1; /* fills remaining space */
-      margin: 40px auto 0; /* top margin only, to keep nav at top */
+      flex: 1;
+      margin: 40px auto 0;
       padding: 2rem;
       border-radius: 12px;
       box-shadow: 0 8px 20px rgba(0,0,0,0.1);
@@ -98,42 +98,6 @@
       resize: vertical;
       min-height: 150px;
     }
-    /* Ingredients Section */
-    #ingredients-container {
-      margin-top: 1rem;
-    }
-    #ingredient-search {
-      width: 100%;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-    #ingredients-checkboxes {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 10px;
-    }
-    .ingredient-checkbox {
-      background: #f1f1f1;
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: background 0.3s, color 0.3s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .ingredient-checkbox input {
-      display: none;
-    }
-    .ingredient-checkbox.selected {
-      background: #4285F4;
-      color: #fff;
-    }
     button[type="submit"] {
       padding: 0.8rem;
       border: none;
@@ -151,12 +115,12 @@
   </style>
 </head>
 <body>
-  <!-- Nav bar from index.html with left-aligned links -->
+  <!-- Nav bar -->
   <nav>
     <ul>
       <li><a href="{% url 'index' %}">Home</a></li>
       <li><a href="{% url 'add_recipe' %}">Add Recipe</a></li>
-      <li><a href="{% url 'add_ingredient' %}">Add Ingredient</a></li>
+      <!-- <li><a href="{% url 'add_ingredient' %}">Add Ingredient</a></li> -->
       {% if user.is_authenticated %}
         <li><a href="{% url 'favorites' %}">My Favorites</a></li>
       {% endif %}
@@ -171,7 +135,7 @@
     {% else %}
       <p>Please use a keyboard and mouse to add recipes.</p>
     {% endif %}
-    <!-- Added link for instructions -->
+    <!-- Link for instructions -->
     <p><a class="instructions-link" href="/instructions/">Instructions</a></p>
     <form action="" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
@@ -188,55 +152,8 @@
         {{ form.instructions.label_tag }}
         {{ form.instructions }}
       </div>
-      <div class="form-group" id="ingredients-container">
-        <label for="ingredient-search">Ingredients</label>
-        <input type="text" id="ingredient-search" placeholder="Search ingredients...">
-        <div id="ingredients-checkboxes">
-          {% for checkbox in form.ingredients %}
-            <label class="ingredient-checkbox">
-              {{ checkbox.tag }} <span>{{ checkbox.choice_label }}</span>
-            </label>
-          {% endfor %}
-        </div>
-      </div>
       <button type="submit">Submit Recipe</button>
     </form>
   </div>
-  <script>
-    // Toggle "selected" class when an ingredient checkbox changes state
-    document.querySelectorAll('.ingredient-checkbox input[type="checkbox"]').forEach(function(checkbox) {
-      checkbox.addEventListener('change', function() {
-        if (checkbox.checked) {
-          checkbox.parentElement.classList.add('selected');
-        } else {
-          checkbox.parentElement.classList.remove('selected');
-        }
-      });
-    });
-    // Filter ingredients by search term
-    document.getElementById("ingredient-search").addEventListener("keyup", function() {
-      var filter = this.value.toLowerCase();
-      document.querySelectorAll(".ingredient-checkbox").forEach(function(tile) {
-        var labelText = tile.textContent.toLowerCase();
-        tile.style.display = labelText.indexOf(filter) > -1 ? "flex" : "none";
-      });
-    });
-    // Sort ingredient tiles case-insensitively after page load
-    document.addEventListener("DOMContentLoaded", function() {
-      var container = document.getElementById("ingredients-checkboxes");
-      if (container) {
-        var tiles = Array.from(container.children);
-        tiles.sort(function(a, b) {
-          var textA = a.innerText.trim().toLowerCase();
-          var textB = b.innerText.trim().toLowerCase();
-          return textA < textB ? -1 : textA > textB ? 1 : 0;
-        });
-        container.innerHTML = "";
-        tiles.forEach(function(tile) {
-          container.appendChild(tile);
-        });
-      }
-    });
-  </script>
 </body>
 </html>

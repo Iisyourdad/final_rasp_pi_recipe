@@ -16,9 +16,11 @@ class HomePageAdmin(admin.ModelAdmin):
 
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
+    exclude = ('ingredients',)  # ingredients field removed
     list_display = ('title', 'meal_type', 'display_favorites')
     list_filter = ('meal_type',)
-    filter_horizontal = ('ingredients', 'favorites',)
+    # Only include favorites in the horizontal filter
+    filter_horizontal = ('favorites',)
 
     def display_favorites(self, obj):
         return ", ".join([user.username for user in obj.favorites.all()])

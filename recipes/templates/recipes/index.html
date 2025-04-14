@@ -280,7 +280,7 @@
         <ul>
           <li><a href="{% url 'index' %}">Home</a></li>
           <li><a href="{% url 'add_recipe' %}">Add Recipe</a></li>
-          <li><a href="{% url 'add_ingredient' %}">Add Ingredient</a></li>
+          <!--<li><a href="{% url 'add_ingredient' %}">Add Ingredient</a></li> -->
           {% if user.is_authenticated %}
             <li><a href="{% url 'favorites' %}">My Favorites</a></li>
           {% endif %}
