@@ -4,6 +4,7 @@ sudo raspi-config
 sudo apt update
 sudo apt full-upgrade
 
+sudo apt-get install unclutter
 cd Downloads
 git clone https://github.com/Iisyourdad/final_rasp_pi_recipe.git
 cd..
@@ -164,6 +165,7 @@ chmod +x ~/disable_touch_tap.sh
 Install chrome extension
 
 https://chromewebstore.google.com/detail/scrollanywhere/jehmdpemhgfgjblpkilmeoafmkhbckhi
+
 
 
 
