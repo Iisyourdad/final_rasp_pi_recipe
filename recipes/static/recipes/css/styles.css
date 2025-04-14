@@ -15,6 +15,8 @@ html, body {
     -webkit-overflow-scrolling: touch; /* Smooth touch scrolling */
     -ms-overflow-style: none; /* IE/Edge */
     scrollbar-width: none;    /* Firefox */
+    cursor: none;
+
 }
 
 html::-webkit-scrollbar, body::-webkit-scrollbar {
