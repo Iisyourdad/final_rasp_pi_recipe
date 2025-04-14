@@ -87,8 +87,12 @@ def favorites(request):
     }
     return render(request, 'recipes/index.html', context)
 
-def custom_404(request, exception):
-    return render(request, 'recipes/404.html', status=404)
+# recipes/views.py
+from django.shortcuts import render
+
+def custom_404(request, exception=None):
+    return render(request, '404.html', status=404)
+
 
 def test_404(request):
     return render(request, 'recipes/404.html', status=404)

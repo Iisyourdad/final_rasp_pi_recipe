@@ -23,16 +23,18 @@ INSTALLED_APPS = [
     'recipes',
 ]
 
+# westbrook_recipes/settings.py
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'westbrook_recipes.middleware.Custom404Middleware',  # <-- Added
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 ]
+
 
 ROOT_URLCONF = 'westbrook_recipes.urls'
 
