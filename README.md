@@ -3,7 +3,6 @@ Install raspberry pi os full on a raspberry pi (even brand new) get the file ont
 
 Connect the pi to internet. 
 
-Run the file. 
+run updates
 
-Recipie app.
-test
+Go to how to set up pi and set it up
