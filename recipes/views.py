@@ -102,23 +102,17 @@ def test_404(request):
 def splash(request):
     return render(request, "recipes/splash.html")
 
+# views.py – replace the existing wifi_setup view
 def wifi_setup(request):
     error = None
     if request.method == 'POST':
         ssid = request.POST.get('ssid', '')
         password = request.POST.get('password', '')
-        config_text = (
-            f"\nnetwork={{\n"
-            f'    ssid="{ssid}"\n'
-            f'    psk="{password}"\n'
-            f"}}\n"
-        )
         try:
             subprocess.run(
-                ["sudo", "/usr/local/bin/update_wifi.sh", config_text],
+                ["sudo", "nmcli", "dev", "wifi", "connect", ssid, "password", password],
                 check=True
             )
-            # test connectivity
             ping = subprocess.run(
                 ["ping", "-c", "1", "8.8.8.8"],
                 capture_output=True
@@ -126,7 +120,7 @@ def wifi_setup(request):
             if ping.returncode == 0:
                 return redirect('configured')
             else:
-                error = "Configuration applied but no connectivity detected."
+                error = "Connected but no internet access."
         except subprocess.CalledProcessError as e:
             error = str(e)
     return render(request, 'recipes/wifi_setup.html', {'error': error})
