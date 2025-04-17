@@ -23,6 +23,7 @@ pip install django-ckeditor
 pip install django-crispy-forms
 pip install django-js-asset
 pip install pillow
+pip install pillow
 pip install sqlparse
 pip install tzdata
 deactivate

@@ -2,12 +2,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import HomePage, Recipe, Instruction  # Assume Instruction model exists
-from .forms import RecipeForm, IngredientForm, InstructionsForm  # InstructionsForm to be created
+from .models import HomePage, Recipe, Instruction
+from .forms import RecipeForm, IngredientForm, InstructionsForm
 import os
-import tempfile
-from django.views.decorators.csrf import csrf_exempt
 import subprocess
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 
 def index(request):
@@ -41,9 +40,6 @@ def index(request):
     }
     return render(request, 'recipes/index.html', context)
 
-
-import subprocess
-
 def add_recipe(request):
     form = RecipeForm()
     if request.method == "POST":
@@ -52,7 +48,6 @@ def add_recipe(request):
             form.save()
             messages.success(request, "Recipe created successfully!")
             return redirect("index")
-    # get first IP returned by `hostname -I`
     try:
         system_ip = subprocess.check_output(['hostname', '-I']).decode().strip().split()[0]
     except Exception:
@@ -62,7 +57,6 @@ def add_recipe(request):
         'system_ip': system_ip,
     }
     return render(request, "recipes/add_recipe.html", context)
-
 
 def add_ingredient(request):
     if request.method == 'POST':
@@ -99,48 +93,43 @@ def favorites(request):
     }
     return render(request, 'recipes/index.html', context)
 
-# recipes/views.py
-from django.shortcuts import render
-
 def custom_404(request, exception=None):
     return render(request, '404.html', status=404)
-
 
 def test_404(request):
     return render(request, 'recipes/404.html', status=404)
 
 def splash(request):
-    if os.path.exists("/home/pi/configured.flag"):
-        return redirect("index")
     return render(request, "recipes/splash.html")
 
 def wifi_setup(request):
     error = None
-    message = None
     if request.method == 'POST':
-        connection_mode = request.POST.get('connection_mode', 'wifi')
-        if connection_mode == 'offline':
-            message = 'Offline mode selected. Skipping WiFi configuration.'
-        else:
-            wifi_type = request.POST.get('wifi_type', 'personal')
-            ssid = request.POST.get('ssid', '')
-            password = request.POST.get('password', '')
-            if wifi_type == 'personal':
-                config_text = f'\nnetwork={{\n    ssid="{ssid}"\n    psk="{password}"\n}}\n'
+        ssid = request.POST.get('ssid', '')
+        password = request.POST.get('password', '')
+        config_text = (
+            f"\nnetwork={{\n"
+            f'    ssid="{ssid}"\n'
+            f'    psk="{password}"\n'
+            f"}}\n"
+        )
+        try:
+            subprocess.run(
+                ["sudo", "/usr/local/bin/update_wifi.sh", config_text],
+                check=True
+            )
+            # test connectivity
+            ping = subprocess.run(
+                ["ping", "-c", "1", "8.8.8.8"],
+                capture_output=True
+            )
+            if ping.returncode == 0:
+                return redirect('configured')
             else:
-                eap_method = request.POST.get('eap_method', '')
-                identity = request.POST.get('identity', '')
-                config_text = (
-                    f'\nnetwork={{\n    ssid="{ssid}"\n'
-                    f'    key_mgmt=WPA-EAP\n    eap={eap_method}\n'
-                    f'    identity="{identity}"\n    password="{password}"\n}}\n'
-                )
-            try:
-                subprocess.run(["sudo", "/usr/local/bin/update_wifi.sh", config_text], check=True)
-                message = "WiFi configuration updated successfully."
-            except subprocess.CalledProcessError as e:
-                error = str(e)
-    return render(request, 'recipes/wifi_setup.html', {'error': error, 'message': message})
+                error = "Configuration applied but no connectivity detected."
+        except subprocess.CalledProcessError as e:
+            error = str(e)
+    return render(request, 'recipes/wifi_setup.html', {'error': error})
 
 def configured(request):
     return render(request, "recipes/configured.html")
@@ -159,25 +148,22 @@ def shutdown(request):
 def update_recipes(request):
     if request.method == "POST":
         repo_dir = os.path.expanduser("~/Downloads/final_rasp_pi_recipe")
-        result = subprocess.run(["git", "pull"], cwd=repo_dir, capture_output=True, text=True)
+        result = subprocess.run(
+            ["git", "pull"], cwd=repo_dir,
+            capture_output=True, text=True
+        )
         if result.returncode == 0:
             return JsonResponse({"status": "success", "output": result.stdout})
         else:
             return JsonResponse({"status": "error", "output": result.stderr})
-    else:
-        return HttpResponse("Method Not Allowed", status=405)
+    return HttpResponse("Method Not Allowed", status=405)
 
-# New view for the public Instructions page
 def instructions(request):
     instructions_list = Instruction.objects.all().order_by('-created_at')
-    context = {
-         'instructions': instructions_list,
-    }
-    return render(request, 'recipes/instructions.html', context)
+    return render(request, 'recipes/instructions.html', {'instructions': instructions_list})
 
-# New view for the secret Add Instructions page using CKEditor.
 def add_intructions(request):
-    from .forms import InstructionsForm  # Ensure you have created this form in forms.py
+    from .forms import InstructionsForm
     form = InstructionsForm()
     if request.method == "POST":
         form = InstructionsForm(request.POST, request.FILES)
@@ -185,5 +171,4 @@ def add_intructions(request):
             form.save()
             messages.success(request, "Instructions added successfully!")
             return redirect("instructions")
-    context = {'form': form}
-    return render(request, "recipes/add_instructions.html", context)
+    return render(request, "recipes/add_instructions.html", {'form': form})

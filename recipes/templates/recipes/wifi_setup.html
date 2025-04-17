@@ -1,123 +1,46 @@
 <!DOCTYPE html>
-<html lang="en" style="background-color: #f1f1f1;">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>WiFi Setup</title>
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500" rel="stylesheet">
   <style>
-    /* Form Styles */
     body {
       margin: 0;
       height: 100vh;
-      background: #f5f5f5;
-      font-family: 'Roboto', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
+      background: #f5f5f5;
+      font-family: sans-serif;
+      cursor: none;
     }
     .container {
       background: #fff;
       padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      max-width: 400px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       width: 90%;
-      animation: fadeIn 0.8s ease-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    h2 {
+      max-width: 360px;
       text-align: center;
-      margin-bottom: 1rem;
-      color: #333;
-    }
-    form {
-      display: flex;
-      flex-direction: column;
-    }
-    label {
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: #555;
     }
     input, button {
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
       width: 100%;
+      padding: 0.75rem;
+      margin-top: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
       box-sizing: border-box;
     }
-    input:focus {
-      outline: none;
-      border-color: #4285F4;
-    }
     button {
-      background: linear-gradient(135deg, #4285F4, #34A853);
+      background: #4285F4;
       color: #fff;
       border: none;
       cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: linear-gradient(135deg, #34A853, #4285F4);
     }
     .error {
       color: #d9534f;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    .message {
-      color: #28a745;
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-    /* On-Screen Keyboard CSS */
-    .onscreen-keyboard {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #000;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.7);
-      z-index: 10000;
-      max-width: 600px;
-      width: 90%;
-      display: none;
-    }
-    .keyboard-row {
-      display: flex;
-      justify-content: center;
-      margin: 4px 0;
-    }
-    .key {
-      background: #888;
-      color: #fff;
-      border: none;
-      margin: 2px;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .key:hover {
-      background: #aaa;
-    }
-    .key-large {
-      flex: 1;
-      margin: 2px;
-      padding: 8px;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    .shift-active {
-      background: #007BFF;
+      margin-top: 1rem;
     }
   </style>
 </head>
@@ -125,259 +48,14 @@
   <div class="container">
     <h2>Connect to WiFi</h2>
     <form method="post">
-      <label for="ssid">SSID:</label>
-      <input type="text" id="ssid" name="ssid" placeholder="Enter network name" required>
-
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" placeholder="Enter password" required>
-
+      {% csrf_token %}
+      <input type="text" name="ssid" placeholder="SSID" required>
+      <input type="password" name="password" placeholder="Password" required>
       <button type="submit">Connect</button>
     </form>
+    {% if error %}
+      <div class="error">{{ error }}</div>
+    {% endif %}
   </div>
-
-  <!-- On-Screen Keyboard -->
-  <div id="onscreen-keyboard" class="onscreen-keyboard">
-    <!-- Alphabet Panel -->
-    <div id="alphabet-panel">
-      <div class="keyboard-row">
-        <button class="key">q</button>
-        <button class="key">w</button>
-        <button class="key">e</button>
-        <button class="key">r</button>
-        <button class="key">t</button>
-        <button class="key">y</button>
-        <button class="key">u</button>
-        <button class="key">i</button>
-        <button class="key">o</button>
-        <button class="key">p</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key">a</button>
-        <button class="key">s</button>
-        <button class="key">d</button>
-        <button class="key">f</button>
-        <button class="key">g</button>
-        <button class="key">h</button>
-        <button class="key">j</button>
-        <button class="key">k</button>
-        <button class="key">l</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key shift-btn">Shift</button>
-        <button class="key">z</button>
-        <button class="key">x</button>
-        <button class="key">c</button>
-        <button class="key">v</button>
-        <button class="key">b</button>
-        <button class="key">n</button>
-        <button class="key">m</button>
-        <button class="key" data-key="backspace">Backspace</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key key-large" data-key="space">Space</button>
-        <button class="key key-large" id="toggle-symbols-btn">Symbols</button>
-        <button class="key key-large" data-key="hide keyboard">Hide Keyboard</button>
-      </div>
-    </div>
-    <!-- Symbols Panel -->
-    <div id="symbols-panel" style="display: none;">
-      <div class="keyboard-row">
-        <button class="key">1</button>
-        <button class="key">2</button>
-        <button class="key">3</button>
-        <button class="key">4</button>
-        <button class="key">5</button>
-        <button class="key">6</button>
-        <button class="key">7</button>
-        <button class="key">8</button>
-        <button class="key">9</button>
-        <button class="key">0</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key">-</button>
-        <button class="key">=</button>
-        <button class="key">[</button>
-        <button class="key">]</button>
-        <button class="key">\</button>
-        <button class="key">;</button>
-        <button class="key">'</button>
-        <button class="key">,</button>
-        <button class="key">.</button>
-        <button class="key">/</button>
-        <button class="key">*</button>
-        <button class="key">+</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key">~</button>
-        <button class="key">!</button>
-        <button class="key">@</button>
-        <button class="key">#</button>
-        <button class="key">$</button>
-        <button class="key">%</button>
-        <button class="key">^</button>
-        <button class="key">&</button>
-        <button class="key">*</button>
-        <button class="key">(</button>
-        <button class="key">)</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key">_</button>
-        <button class="key">+</button>
-        <button class="key">{</button>
-        <button class="key">}</button>
-        <button class="key">|</button>
-        <button class="key">:</button>
-        <button class="key">"</button>
-        <button class="key"><</button>
-        <button class="key">></button>
-        <button class="key">?</button>
-      </div>
-      <div class="keyboard-row">
-        <button class="key" id="toggle-alphabet-btn">ABC</button>
-        <button class="key key-large" data-key="hide keyboard">Hide Keyboard</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      var currentField = null;
-      const ssidField = document.getElementById("ssid");
-      const passwordField = document.getElementById("password");
-
-      // Prevent keys from gaining focus
-      document.querySelectorAll('.key').forEach(key => {
-        key.tabIndex = -1;
-      });
-
-      // Show keyboard and set current field on focus
-      ssidField.addEventListener("focus", function() {
-        currentField = this;
-        document.getElementById("onscreen-keyboard").style.display = "block";
-      });
-      passwordField.addEventListener("focus", function() {
-        currentField = this;
-        document.getElementById("onscreen-keyboard").style.display = "block";
-      });
-
-      // Hide keyboard if clicking outside inputs and keyboard
-      document.addEventListener("click", function(e) {
-        const keyboard = document.getElementById("onscreen-keyboard");
-        if (keyboard && !keyboard.contains(e.target) &&
-            e.target !== ssidField && e.target !== passwordField) {
-          keyboard.style.display = "none";
-        }
-      });
-
-      // Alphabet panel keys
-      let isShiftActive = false;
-      const shiftBtn = document.querySelector('.shift-btn');
-      const alphabetKeys = document.querySelectorAll('#alphabet-panel .key');
-      alphabetKeys.forEach((btn) => {
-        btn.addEventListener('click', function(e) {
-          // Prevent toggle buttons from typing text
-          if(this.id === "toggle-symbols-btn") return;
-          let activeField = currentField || ssidField; // Use currentField with fallback
-          const key = this.getAttribute('data-key') || this.innerText;
-          if (key.toLowerCase() === "hide keyboard") {
-            document.getElementById("onscreen-keyboard").style.display = "none";
-            return;
-          }
-          if (key.toLowerCase() === "backspace") {
-            activeField.value = activeField.value.slice(0, -1);
-            activeField.focus();
-            return;
-          }
-          if (key.toLowerCase() === "space") {
-            activeField.value += " ";
-            activeField.focus();
-            return;
-          }
-          if (this.classList.contains("shift-btn")) {
-            isShiftActive = !isShiftActive;
-            toggleShiftMode(isShiftActive);
-            return;
-          }
-          activeField.value += key;
-          activeField.focus();
-          if (isShiftActive && this !== shiftBtn) {
-            isShiftActive = false;
-            toggleShiftMode(false);
-          }
-        });
-      });
-
-      function toggleShiftMode(enabled) {
-        shiftBtn.classList.toggle("shift-active", enabled);
-        document.querySelectorAll("#alphabet-panel .key:not([data-key])").forEach((k) => {
-          k.innerText = enabled ? k.innerText.toUpperCase() : k.innerText.toLowerCase();
-        });
-      }
-
-      // Symbols panel keys
-      document.querySelectorAll("#symbols-panel .key").forEach(function(btn) {
-        btn.addEventListener("click", function(e) {
-          // Prevent the ABC toggle button from typing text
-          if(this.id === "toggle-alphabet-btn") return;
-          let activeField = currentField || ssidField; // Use currentField with fallback
-          const key = this.getAttribute("data-key") || this.innerText;
-          if (key.toLowerCase() === "hide keyboard") {
-            document.getElementById("onscreen-keyboard").style.display = "none";
-            return;
-          }
-          if (key.toLowerCase() === "backspace") {
-            activeField.value = activeField.value.slice(0, -1);
-            activeField.focus();
-            return;
-          }
-          if (key.toLowerCase() === "space") {
-            activeField.value += " ";
-            activeField.focus();
-            return;
-          }
-          activeField.value += key;
-          activeField.focus();
-        });
-      });
-
-      // Toggle panels
-      document.getElementById("toggle-symbols-btn").addEventListener("click", function(e) {
-        e.stopPropagation();
-        document.getElementById("alphabet-panel").style.display = "none";
-        document.getElementById("symbols-panel").style.display = "block";
-      });
-      document.getElementById("toggle-alphabet-btn").addEventListener("click", function(e) {
-        e.stopPropagation();
-        document.getElementById("symbols-panel").style.display = "none";
-        document.getElementById("alphabet-panel").style.display = "block";
-      });
-
-      // Draggable keyboard
-      (function() {
-        const keyboard = document.getElementById("onscreen-keyboard");
-        let isDragging = false, startX, startY, origX, origY;
-        keyboard.addEventListener("mousedown", function(e) {
-          if (e.target.classList.contains("key")) return;
-          isDragging = true;
-          startX = e.clientX;
-          startY = e.clientY;
-          origX = keyboard.offsetLeft;
-          origY = keyboard.offsetTop;
-          e.preventDefault();
-        });
-        document.addEventListener("mousemove", function(e) {
-          if (isDragging) {
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            keyboard.style.left = (origX + dx) + "px";
-            keyboard.style.top = (origY + dy) + "px";
-          }
-        });
-        document.addEventListener("mouseup", function() {
-          isDragging = false;
-        });
-      })();
-    });
-  </script>
 </body>
 </html>
