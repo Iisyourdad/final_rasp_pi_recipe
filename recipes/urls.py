@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('', views.index, name='index'),
     path('splash/', views.splash, name='splash'),
+    path('splash/check/', views.splash_check, name='splash_check'),
     path('wifi/', views.wifi_setup, name='wifi_setup'),
     path('wifi/connecting/', views.wifi_connecting, name='wifi_connecting'),
     path('wifi/do_connect/', views.wifi_do_connect, name='wifi_do_connect'),
@@ -18,7 +19,6 @@ urlpatterns = [
     path('favorites/', views.favorites, name='favorites'),
     path('test-404/', views.test_404, name='test_404'),
     path('shutdown/', views.shutdown, name='shutdown'),
-    path('splash/check/', views.splash_check, name='splash_check'),
     path('update_recipes/', views.update_recipes, name='update_recipes'),
 ]
 
