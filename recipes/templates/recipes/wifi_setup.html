@@ -18,8 +18,8 @@
     <h2>Connect to WiFi</h2>
     <form method="post" action="{% url 'wifi_connecting' %}">
       {% csrf_token %}
-      <input type="text" name="ssid" placeholder="SSID" required>
-      <input type="password" name="password" placeholder="Password" required>
+      <input name="ssid"    placeholder="SSID"     required>
+      <input name="password" placeholder="Password" type="password" required>
       <button type="submit">Connect</button>
     </form>
     <a href="/" class="continue-btn">Continue without Internet</a>

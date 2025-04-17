@@ -114,42 +114,43 @@ def splash_check(request):
 
 
 
+import subprocess, json
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
 def wifi_setup(request):
     error = request.GET.get('error')
     return render(request, 'recipes/wifi_setup.html', {'error': error})
 
-
-# views.py (add)
 def wifi_connecting(request):
     if request.method == 'POST':
-        ssid = request.POST.get('ssid', '')
-        password = request.POST.get('password', '')
-        return render(request, 'recipes/connecting.html', {'ssid': ssid, 'password': password})
+        ssid = request.POST['ssid']
+        password = request.POST['password']
+        return render(request, 'recipes/connecting.html', {
+            'ssid': ssid, 'password': password
+        })
     return redirect('wifi_setup')
 
 @csrf_exempt
 def wifi_do_connect(request):
-    if request.method == 'POST':
+    if request.method != 'POST':
+        return JsonResponse({'status':'error','error':'invalid method'})
+    try:
         data = json.loads(request.body)
-        ssid = data.get('ssid', '')
-        password = data.get('password', '')
-        try:
-            subprocess.run(
-                ["sudo", "nmcli", "dev", "wifi", "connect", ssid, "password", password],
-                check=True
-            )
-            ping = subprocess.run(
-                ["ping", "-c", "1", "8.8.8.8"],
-                capture_output=True
-            )
-            if ping.returncode == 0:
-                return JsonResponse({'status': 'ok'})
-            else:
-                return JsonResponse({'status': 'error', 'error': 'Connected but no internet access.'})
-        except subprocess.CalledProcessError as e:
-            return JsonResponse({'status': 'error', 'error': str(e)})
-    return JsonResponse({'status': 'error', 'error': 'invalid method'})
-
+        ssid, pw = data['ssid'], data['password']
+        subprocess.run(
+            ['sudo','nmcli','dev','wifi','connect',ssid,'password',pw],
+            check=True
+        )
+        ok = subprocess.run(
+            ['ping','-c','1','8.8.8.8'],
+            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        ).returncode==0
+        return JsonResponse({'status':'ok' if ok else 'error',
+                             'error': '' if ok else 'no-internet'})
+    except Exception as e:
+        return JsonResponse({'status':'error','error':str(e)})
 
 def configured(request):
     return render(request, "recipes/configured.html")
