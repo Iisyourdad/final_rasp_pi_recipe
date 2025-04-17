@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Splash</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:700|Roboto:400" rel="stylesheet">
   <style>
     body {
       margin: 0;
@@ -11,22 +12,45 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-family: 'Roboto Slab', serif;
       color: #fff;
-      font-family: sans-serif;
+      overflow: hidden;
+    }
+    html, body {
       cursor: none;
     }
-    h1 { font-size: 4rem; }
+    h1 {
+      font-size: 4rem;
+      opacity: 0;
+      transform: translateY(-20px);
+      animation: fadeInSlideDown 1.5s forwards;
+    }
+    @keyframes fadeInSlideDown {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
   <script>
-    setTimeout(() => {
-      const img = new Image();
-      img.src = 'https://clients3.google.com/generate_204?' + Date.now();
-      img.onload  = () => window.location.href = '/';
-      img.onerror = () => window.location.href = '/wifi/';
-    }, 3000);
+    // After 4 seconds, check connectivity and redirect.
+    setTimeout(function() {
+      // Create an image object to test connectivity.
+      var img = new Image();
+      // Append a timestamp to avoid caching.
+      img.src = "https://clients3.google.com/generate_204?" + new Date().getTime();
+      img.onload = function() {
+        // If the image loads, assume we have internet and go to home page.
+        window.location.href = '/';
+      };
+      img.onerror = function() {
+        // If the image fails, assume no connectivity and redirect to WiFi setup.
+        window.location.href = '/wifi/';
+      };
+    }, 4000);
   </script>
 </head>
 <body>
-  <h1>Welcome</h1>
+  <h1>Hello</h1>
 </body>
 </html>
