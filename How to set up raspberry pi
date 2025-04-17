@@ -99,23 +99,25 @@ sudo nano /usr/local/bin/update_wifi.sh
 
 """
 #!/bin/bash
-# This script appends a new network configuration to wpa_supplicant.conf and reloads WiFi.
+# Append a network block to wpa_supplicant.conf and reload Wi‑Fi.
+
+set -e  # exit on any error
 
 if [ -z "$1" ]; then
-  echo "Error: No configuration provided."
+  echo "Usage: $0 'network={ ... }'"
   exit 1
 fi
 
-CONFIG="$1"
-# Append the new network configuration to wpa_supplicant.conf
-echo "$CONFIG" >> /etc/wpa_supplicant/wpa_supplicant.conf
+CFG="/etc/wpa_supplicant/wpa_supplicant.conf"
 
-# Reconfigure WiFi on wlan0
-sudo /usr/sbin/wpa_cli -i wlan0 reconfigure
+# Add a blank line first so the block is cleanly separated.
+printf "\n%s\n" "$1" >> "$CFG"
 
-echo "WiFi configuration updated."
+# Ensure correct permissions on the conf file (optional but good practice).
+chmod 600 "$CFG"
 
-
+# Reconfigure Wi‑Fi
+/usr/sbin/wpa_cli -i wlan0 reconfigure
 
 """
 
