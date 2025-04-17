@@ -306,3 +306,35 @@ sleep 5
 sudo wpa_cli -i wlan0 status
 ip -4 a show wlan0
 ##############################################################################
+
+
+##############################################################################
+# 1 – Is the wpa_supplicant service running on wlan0?                        #
+##############################################################################
+sudo systemctl status wpa_supplicant@wlan0.service  --no-pager
+
+# If it shows “loaded but inactive (dead)” or “failed”, start/enable it:
+sudo systemctl enable wpa_supplicant@wlan0.service
+sudo systemctl start  wpa_supplicant@wlan0.service
+
+##############################################################################
+# 2 – Verify the control socket exists                                       #
+##############################################################################
+ls -l /var/run/wpa_supplicant/wlan0
+
+# If the file is missing, the daemon isn’t bound to wlan0.
+# Start it manually just once to confirm:
+sudo wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
+##############################################################################
+# 3 – Try reconfigure again (must show OK, not FAIL)                         #
+##############################################################################
+sudo /usr/sbin/wpa_cli -i wlan0 reconfigure
+
+##############################################################################
+# 4 – Now watch status and get an IP                                         #
+##############################################################################
+sleep 5
+sudo wpa_cli -i wlan0 status
+ip -4 a show wlan0
+##############################################################################
