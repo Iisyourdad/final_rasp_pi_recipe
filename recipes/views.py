@@ -41,6 +41,9 @@ def index(request):
     }
     return render(request, 'recipes/index.html', context)
 
+
+import subprocess
+
 def add_recipe(request):
     form = RecipeForm()
     if request.method == "POST":
@@ -49,8 +52,17 @@ def add_recipe(request):
             form.save()
             messages.success(request, "Recipe created successfully!")
             return redirect("index")
-    context = {'form': form}
+    # get first IP returned by `hostname -I`
+    try:
+        system_ip = subprocess.check_output(['hostname', '-I']).decode().strip().split()[0]
+    except Exception:
+        system_ip = None
+    context = {
+        'form': form,
+        'system_ip': system_ip,
+    }
     return render(request, "recipes/add_recipe.html", context)
+
 
 def add_ingredient(request):
     if request.method == 'POST':
