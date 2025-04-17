@@ -33,22 +33,11 @@
     }
   </style>
   <script>
-    // After 4 seconds, check connectivity and redirect.
-    setTimeout(function() {
-      // Create an image object to test connectivity.
-      var img = new Image();
-      // Append a timestamp to avoid caching.
-      img.src = "https://clients3.google.com/generate_204?" + new Date().getTime();
-      img.onload = function() {
-        // If the image loads, assume we have internet and go to home page.
-        window.location.href = '/';
-      };
-      img.onerror = function() {
-        // If the image fails, assume no connectivity and redirect to WiFi setup.
-        window.location.href = '/wifi/';
-      };
-    }, 4000);
+  setTimeout(function () {
+    window.location.href = "{% url 'splash_check' %}";
+  }, 3000);
   </script>
+
 </head>
 <body>
   <h1>Hello</h1>

@@ -109,8 +109,16 @@ def splash(request):
     ).returncode == 0
     return redirect('index' if has_net else 'wifi_setup')
 
+# views.py – add
+def splash_check(request):
+    has_net = subprocess.run(
+        ["ping", "-c", "1", "8.8.8.8"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    ).returncode == 0
+    return redirect('/' if has_net else '/wifi/')
 
-# views.py – replace the existing wifi_setup view
+
 def wifi_setup(request):
     error = request.GET.get('error')
     return render(request, 'recipes/wifi_setup.html', {'error': error})

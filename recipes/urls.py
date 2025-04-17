@@ -18,6 +18,7 @@ urlpatterns = [
     path('favorites/', views.favorites, name='favorites'),
     path('test-404/', views.test_404, name='test_404'),
     path('shutdown/', views.shutdown, name='shutdown'),
+    path('splash/check/', views.splash_check, name='splash_check'),
     path('update_recipes/', views.update_recipes, name='update_recipes'),
 ]
 
