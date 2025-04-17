@@ -1,0 +1,43 @@
+<!-- templates/recipes/connecting.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Connecting...</title>
+  <style>
+    body{margin:0;height:100vh;display:flex;justify-content:center;align-items:center;background:#f5f5f5;font-family:sans-serif;cursor:default}
+    .spinner{border:8px solid #f3f3f3;border-top:8px solid #4285F4;border-radius:50%;width:60px;height:60px;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    h2{text-align:center;margin-top:1rem;color:#333}
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="spinner"></div>
+    <h2>Connecting...</h2>
+  </div>
+  <script>
+    function getCookie(n){let v="; "+document.cookie;let p=v.split("; "+n+"=");if(p.length===2)return p.pop().split(";").shift();}
+    const csrftoken=getCookie('csrftoken');
+    const ssid="{{ ssid|escapejs }}";
+    const password="{{ password|escapejs }}";
+    fetch("{% url 'wifi_do_connect' %}",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "X-CSRFToken":csrftoken
+      },
+      body:JSON.stringify({ssid:ssid,password:password})
+    })
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.status==="ok"){
+        window.location.href="{% url 'configured' %}";
+      }else{
+        window.location.href="{% url 'wifi_setup' %}?error="+encodeURIComponent(d.error);
+      }
+    })
+    .catch(()=>window.location.href="{% url 'wifi_setup' %}?error=Unexpected error"));
+  </script>
+</body>
+</html>

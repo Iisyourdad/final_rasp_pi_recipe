@@ -9,6 +9,8 @@ import subprocess
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 
+import json
+
 def index(request):
     home_page = HomePage.objects.first()
     recipes = Recipe.objects.all()
@@ -104,10 +106,24 @@ def splash(request):
 
 # views.py – replace the existing wifi_setup view
 def wifi_setup(request):
-    error = None
+    error = request.GET.get('error')
+    return render(request, 'recipes/wifi_setup.html', {'error': error})
+
+
+# views.py (add)
+def wifi_connecting(request):
     if request.method == 'POST':
         ssid = request.POST.get('ssid', '')
         password = request.POST.get('password', '')
+        return render(request, 'recipes/connecting.html', {'ssid': ssid, 'password': password})
+    return redirect('wifi_setup')
+
+@csrf_exempt
+def wifi_do_connect(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        ssid = data.get('ssid', '')
+        password = data.get('password', '')
         try:
             subprocess.run(
                 ["sudo", "nmcli", "dev", "wifi", "connect", ssid, "password", password],
@@ -118,12 +134,13 @@ def wifi_setup(request):
                 capture_output=True
             )
             if ping.returncode == 0:
-                return redirect('configured')
+                return JsonResponse({'status': 'ok'})
             else:
-                error = "Connected but no internet access."
+                return JsonResponse({'status': 'error', 'error': 'Connected but no internet access.'})
         except subprocess.CalledProcessError as e:
-            error = str(e)
-    return render(request, 'recipes/wifi_setup.html', {'error': error})
+            return JsonResponse({'status': 'error', 'error': str(e)})
+    return JsonResponse({'status': 'error', 'error': 'invalid method'})
+
 
 def configured(request):
     return render(request, "recipes/configured.html")
