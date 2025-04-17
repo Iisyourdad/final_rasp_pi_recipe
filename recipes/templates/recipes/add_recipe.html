@@ -72,6 +72,12 @@
       color: #4285F4;
       text-decoration: underline;
     }
+    .ip-display {
+      text-align: center;
+      margin-top: 0.5rem;
+      color: #555;
+      font-weight: 500;
+    }
     form {
       display: flex;
       flex-direction: column;
@@ -138,6 +144,9 @@
     {% endif %}
     <!-- Link for instructions -->
     <p><a class="instructions-link" href="/instructions/">Instructions</a></p>
+    {% if system_ip %}
+      <p class="ip-display">{{ system_ip }}</p>
+    {% endif %}
     <form action="" method="POST" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form.media }}
