@@ -132,25 +132,47 @@ def wifi_connecting(request):
         })
     return redirect('wifi_setup')
 
+# views.py — update your wifi_do_connect view:
+
 @csrf_exempt
 def wifi_do_connect(request):
     if request.method != 'POST':
-        return JsonResponse({'status':'error','error':'invalid method'})
+        return JsonResponse({'status': 'error', 'error': 'invalid method'})
     try:
         data = json.loads(request.body)
-        ssid, pw = data['ssid'], data['password']
+        ssid = data.get('ssid', '')
+        password = data.get('password', '')
+        # attempt the wifi connection
         subprocess.run(
-            ['sudo','nmcli','dev','wifi','connect',ssid,'password',pw],
+            ['sudo', 'nmcli', 'dev', 'wifi', 'connect', ssid, 'password', password],
             check=True
         )
-        ok = subprocess.run(
-            ['ping','-c','1','8.8.8.8'],
-            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
-        ).returncode==0
-        return JsonResponse({'status':'ok' if ok else 'error',
-                             'error': '' if ok else 'no-internet'})
-    except Exception as e:
-        return JsonResponse({'status':'error','error':str(e)})
+    except subprocess.CalledProcessError:
+        # catch any nmcli failure (e.g. bad password)
+        return JsonResponse({
+            'status': 'error',
+            'error': 'Wrong password, please try again'
+        })
+    except Exception:
+        return JsonResponse({
+            'status': 'error',
+            'error': 'Unexpected error occurred'
+        })
+
+    # if connection succeeded, verify with a ping
+    has_net = subprocess.run(
+        ['ping', '-c', '1', '8.8.8.8'],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+    ).returncode == 0
+
+    if has_net:
+        return JsonResponse({'status': 'ok'})
+    else:
+        return JsonResponse({
+            'status': 'error',
+            'error': 'Failed to connect, please try again'
+        })
+
 
 def configured(request):
     return render(request, "recipes/configured.html")
