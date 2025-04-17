@@ -102,7 +102,13 @@ def test_404(request):
     return render(request, 'recipes/404.html', status=404)
 
 def splash(request):
-    return render(request, "recipes/splash.html")
+    has_net = subprocess.run(
+        ["ping", "-c", "1", "8.8.8.8"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    ).returncode == 0
+    return redirect('index' if has_net else 'wifi_setup')
+
 
 # views.py – replace the existing wifi_setup view
 def wifi_setup(request):
