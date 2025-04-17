@@ -4,7 +4,7 @@ sudo raspi-config
 sudo apt update
 sudo apt full-upgrade
 
-sudo apt-get install unclutter
+
 cd Downloads
 git clone https://github.com/Iisyourdad/final_rasp_pi_recipe.git
 cd..

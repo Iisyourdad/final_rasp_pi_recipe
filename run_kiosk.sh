@@ -1,6 +1,4 @@
 #!/bin/bash
-# Hide the mouse cursor immediately on the root window.
-unclutter -idle 0 -root &
 
 # Check if the configuration flag exists.
 if [ ! -f /home/tyler/configured.flag ]; then
