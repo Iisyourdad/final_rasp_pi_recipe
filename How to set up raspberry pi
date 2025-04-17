@@ -174,37 +174,46 @@ https://chromewebstore.google.com/detail/scrollanywhere/jehmdpemhgfgjblpkilmeoaf
 
 Run all of the below
 
-# 0. run as your normal user with sudo privileges
-#------------------------------------------------
-# 1. replace wpa_supplicant.conf with a clean, minimal file
-sudo cp /etc/wpa_supplicant/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf.bak
-printf 'country=US\nctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\n' \
-| sudo tee /etc/wpa_supplicant/wpa_supplicant.conf >/dev/null
-sudo chmod 600 /etc/wpa_supplicant/wpa_supplicant.conf
 
-# 2. create /usr/local/bin/update_wifi.sh (replace‑not‑append script)
-sudo tee /usr/local/bin/update_wifi.sh >/dev/null <<'EOF'
-#!/bin/bash
-set -e
-CFG=/etc/wpa_supplicant/wpa_supplicant.conf
-[ -z "$1" ] && { echo "Usage: $0 'network={ ... }'"; exit 1; }
-SSID=$(echo "$1" | grep -oP 'ssid="\\K[^"]+')
-sudo sed -i "/ssid=\"${SSID//\//\\/}\"/,/}/d" "$CFG"
-printf "\n%s\n" "$1" | sudo tee -a "$CFG" >/dev/null
-chmod 600 "$CFG"
-/usr/sbin/wpa_cli -i wlan0 reconfigure
-EOF
-sudo chmod +x /usr/local/bin/update_wifi.sh
-
-# 3. allow the script to run without a password (edit username if needed)
-echo 'tyler ALL=(root) NOPASSWD: /usr/local/bin/update_wifi.sh' \
-| sudo tee /etc/sudoers.d/update_wifi >/dev/null
-sudo chmod 440 /etc/sudoers.d/update_wifi
-
-# 4. (optional) quick manual test – replace SSID/pass with something real
-# sudo /usr/local/bin/update_wifi.sh 'network={\n    ssid="MyWiFi"\n    psk="MyPass"\n}'
+# same user that starts `python manage.py runserver`
+python - <<'PY'
+import subprocess, textwrap, shlex, sys
+cfg = textwrap.dedent('''\
+network={
+    ssid="TestSSID"
+    psk="testpass"
+}''')
+try:
+    subprocess.run(
+        ["sudo", "/usr/local/bin/update_wifi.sh", cfg],
+        check=True
+    )
+except subprocess.CalledProcessError as e:
+    print("return code:", e.returncode)
+    print("stdout:\n", e.stdout)
+    print("stderr:\n", e.stderr)
+PY
 
 
 
 
 
+tyler ALL=(root) NOPASSWD: /usr/local/bin/update_wifi.sh
+
+sudo -u www-data sudo -n /usr/local/bin/update_wifi.sh "network={ssid=\"X\" psk=\"Y\"}"
+
+
+
+result = subprocess.run(
+    ["sudo", "-n", "/usr/local/bin/update_wifi.sh", config_text],
+    capture_output=True, text=True
+)
+if result.returncode != 0:
+    error = result.stderr or f"Script failed: {result.returncode}"
+
+
+sudo /usr/local/bin/update_wifi.sh 'network={
+    ssid="Bad/SSID"
+    psk="badpass"
+}'
+echo "exit code:$?"
