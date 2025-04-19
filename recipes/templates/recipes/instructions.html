@@ -90,8 +90,6 @@
     <ul>
       <li><a href="{% url 'index' %}">Home</a></li>
       <li><a href="{% url 'add_recipe' %}">Add Recipe</a></li>
-      <li><a href="{% url 'add_ingredient' %}">Add Ingredient</a></li>
-      <li><a href="{% url 'instructions' %}">Instructions</a></li>
     </ul>
   </nav>
   <div class="header-section">
@@ -110,6 +108,7 @@
     </div>
     {% for instruction in instructions %}
       <div id="instruction-{{ instruction.id }}" class="instruction-section">
+        <h2>{{ instruction.title }}</h2>
         <h2>{{ instruction.title }}</h2>
         <p>{{ instruction.content|safe }}</p>
       </div>
