@@ -177,15 +177,23 @@ def wifi_do_connect(request):
 def configured(request):
     return render(request, "recipes/configured.html")
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse
+import subprocess
+
 @csrf_exempt
 def shutdown(request):
     if request.method == 'POST':
         try:
+            # suppress all kernel messages except panic
+            subprocess.run(["sudo", "dmesg", "-n", "1"], check=True)
+            # now power off
             subprocess.run(["sudo", "shutdown", "-h", "now"], check=True)
             return HttpResponse("Shutting down", status=200)
         except subprocess.CalledProcessError as e:
             return HttpResponse("Error: " + str(e), status=500)
     return HttpResponse("Method not allowed", status=405)
+
 
 @csrf_exempt
 def update_recipes(request):
