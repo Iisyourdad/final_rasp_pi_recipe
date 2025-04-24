@@ -1,6 +1,10 @@
 sudo raspi-config
 #select boot/autologin desktop
 
+sudo raspi-config
+#select 2 Network Options
+  #N1 Hostname
+
 sudo apt update
 sudo apt full-upgrade
 
@@ -163,6 +167,9 @@ xinput set-button-map "xwayland-touch:14" 0 2 3
 """
 
 chmod +x ~/disable_touch_tap.sh
+
+
+
 
 
 Install chrome extension
